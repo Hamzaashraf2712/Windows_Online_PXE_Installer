@@ -57,5 +57,4 @@ By downloading, cloning, modifying, or executing any part of this repository, yo
 1. **Verify Backups:** Ensure all critical data on target test machines is fully backed up.
 2. **Download/Clone:** Download/clone this repository and have your standard Windows ISO ready.
 3. **Run Setup:** Execute **`setup.bat`** as Administrator to automatically clean workspaces, verify directories, and fetch network boot binaries.
-4. **Execute Orchestrator:** Run `main.py` with full administrative privileges. Provide your desired local account credentials when prompted.
-5. **PXE Boot Client:** Boot your target machine over the network (noting its MAC address from the BIOS or boot screen) and select your deployment strategy on the host server console.
+4. **PXE Boot Client:** Boot your target machine over the network (noting its MAC address from the BIOS or boot screen) and select your deployment strategy on the host server console.
