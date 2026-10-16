@@ -11,6 +11,13 @@
 
 A robust, zero-touch, network-based Windows deployment and PXE staging system built using **Python**, **PowerShell**, and native **Windows deployment utilities (DISM, Diskpart, BCDBoot)**. Designed for speed, automation, and full control over local account staging and dynamic partition management.
 
+## Credits
+
+* **iPXE EFI binary (`ipxe.efi`):** Provided by the [FOG Project](https://github.com/FOGProject/fogproject/blob/master/packages/tftp/ipxe.efi) and built from the [iPXE project](https://github.com/ipxe/ipxe).
+* **wimboot:** Provided by the [iPXE project](https://github.com/ipxe/wimboot), which publishes the binary used by this setup.
+
+See the upstream projects for their licensing terms and notices.
+
 ---
 
 ## ⚙️ Core Architecture & Component Scripts

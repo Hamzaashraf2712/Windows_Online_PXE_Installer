@@ -5,6 +5,7 @@ import subprocess
 import glob
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from modules.config import SERVER_IP
 
 # Project Root Directory
 RootMDir = os.path.dirname(os.path.abspath(__file__))
@@ -124,7 +125,9 @@ def run_ps(script_name):
     
     if os.path.exists(path):
         print(f"[*] Executing PowerShell script: {script_name}")
-        subprocess.run(["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", path], check=True)
+        env = os.environ.copy()
+        env["SERVER_IP"] = SERVER_IP
+        subprocess.run(["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", path], check=True, env=env)
     else:
         print(f"[-] Warning: Could not find script '{script_name}'")
 

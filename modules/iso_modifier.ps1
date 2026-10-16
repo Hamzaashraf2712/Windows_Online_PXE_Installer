@@ -154,7 +154,12 @@ $DeployCmdSrc = Join-Path $CustomConfigsDir "deploy.cmd"
 $UnattendSrc  = Join-Path $CustomConfigsDir "autounattend.xml"
 
 if (Test-Path $DeployCmdSrc) {
-    Copy-Item -Path $DeployCmdSrc -Destination "$MountDir\deploy.cmd" -Force
+    if ([string]::IsNullOrWhiteSpace($env:SERVER_IP)) {
+        throw "SERVER_IP was not provided by the orchestrator."
+    }
+    $DeployCmdContent = [System.IO.File]::ReadAllText($DeployCmdSrc)
+    $DeployCmdContent = $DeployCmdContent.Replace("__SERVER_IP__", $env:SERVER_IP)
+    [System.IO.File]::WriteAllText((Join-Path $MountDir "deploy.cmd"), $DeployCmdContent, [System.Text.Encoding]::ASCII)
     Write-Host "  [+] Injected customizable_configs\deploy.cmd -> X:\deploy.cmd" -ForegroundColor Green
 }
 

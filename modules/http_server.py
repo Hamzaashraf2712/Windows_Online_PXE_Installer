@@ -3,9 +3,24 @@ import socketserver
 import threading
 import json
 from pathlib import Path
-from config import ROOT_DIR, WINPE_DIR
+from config import ROOT_DIR, SERVER_IP, WINPE_DIR
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+
+    def do_GET(self):
+        clean = self.path.split('?')[0].split('#')[0].strip('/')
+        if clean == "customizable_configs/deploy.cmd":
+            script_path = ROOT_DIR / clean
+            content = script_path.read_text(encoding='utf-8').replace("__SERVER_IP__", SERVER_IP)
+            body = content.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        super().do_GET()
 
     def translate_path(self, path):
         clean = path.split('?')[0].split('#')[0].strip('/')
@@ -139,7 +154,7 @@ format %OS_DRIVE% /FS:NTFS /Q /Y /V:Windows >nul
 
                 part_script_logic = f"""
 echo [*] Partitioning Disk {target_disk} into OS and Data drives...
-curl.exe -f -s -o X:\\dp.txt http://192.168.0.120/scripts/{dp_filename}
+curl.exe -f -s -o X:\\dp.txt http://{SERVER_IP}/scripts/{dp_filename}
 diskpart /s X:\\dp.txt >nul
 set OS_DRIVE=C:
 """
@@ -163,7 +178,7 @@ set OS_DRIVE=C:
 
                 part_script_logic = f"""
 echo [*] Executing Clean Wipe and Partitioning on Disk {target_disk}...
-curl.exe -f -s -o X:\\dp.txt http://192.168.0.120/scripts/{dp_filename}
+curl.exe -f -s -o X:\\dp.txt http://{SERVER_IP}/scripts/{dp_filename}
 diskpart /s X:\\dp.txt >nul
 set OS_DRIVE=C:
 """
@@ -187,10 +202,10 @@ echo [*] Downloading Windows OS image from server...
 if exist %OS_DRIVE%\\install.wim del /f /q %OS_DRIVE%\\install.wim
 if exist %OS_DRIVE%\\install.esd del /f /q %OS_DRIVE%\\install.esd
 
-curl.exe -f -# -o %OS_DRIVE%\\install.wim http://192.168.0.120/winpe/sources/install.wim
+curl.exe -f -# -o %OS_DRIVE%\\install.wim http://{SERVER_IP}/winpe/sources/install.wim
 if not exist %OS_DRIVE%\\install.wim (
     echo [!] install.wim not found, trying install.esd...
-    curl.exe -f -# -o %OS_DRIVE%\\install.esd http://192.168.0.120/winpe/sources/install.esd
+    curl.exe -f -# -o %OS_DRIVE%\\install.esd http://{SERVER_IP}/winpe/sources/install.esd
 )
 
 if not exist %OS_DRIVE%\\install.wim if not exist %OS_DRIVE%\\install.esd (
@@ -219,7 +234,7 @@ echo.
 echo [*] Injecting autounattend.xml...
 if not exist %OS_DRIVE%\\Windows\\Panther mkdir %OS_DRIVE%\\Windows\\Panther
 if not exist %OS_DRIVE%\\Windows\\System32\\Sysprep mkdir %OS_DRIVE%\\Windows\\System32\\Sysprep
-curl.exe -f -s -o %OS_DRIVE%\\unattend.xml http://192.168.0.120/customizable_configs/unattend.xml
+curl.exe -f -s -o %OS_DRIVE%\\unattend.xml http://{SERVER_IP}/customizable_configs/unattend.xml
 if exist %OS_DRIVE%\\unattend.xml (
     copy /y %OS_DRIVE%\\unattend.xml %OS_DRIVE%\\Windows\\Panther\\unattend.xml >nul
     copy /y %OS_DRIVE%\\unattend.xml %OS_DRIVE%\\Windows\\System32\\Sysprep\\unattend.xml >nul
